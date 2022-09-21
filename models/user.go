@@ -17,6 +17,7 @@ type User struct {
 
 type Senha struct {
 	Senha string `db:"Senha"`
+	IdUser uint `db:"IdUser"`
 }
 
 func CreateUser(user User) (sql.Result, error){
@@ -53,7 +54,7 @@ func GetUserByUsername(login string) (Senha, error){
 	db := services.ConnectToDB()
 	var senha Senha
 
-	err := db.QueryRow("SELECT Senha FROM UserLogin WHERE NumeroCelular = ?", login).Scan(&senha.Senha)
+	err := db.QueryRow("SELECT Senha, idUser FROM UserLogin WHERE NumeroCelular = ?", login).Scan(&senha.Senha, &senha.IdUser)
 
 	if err!= nil {
 		return Senha{}, err

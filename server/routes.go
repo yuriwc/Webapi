@@ -21,6 +21,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		pessoa := main.Group("pessoa", middlewares.Auth())
 		{
 			pessoa.POST("/createPessoa", controllers.CreatePessoa)
+			pessoa.POST("/createAddress", controllers.CriarEndereco)
 		}
 	}
 

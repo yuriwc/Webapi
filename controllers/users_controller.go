@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"webApi/models"
 	"webApi/services"
@@ -44,9 +43,7 @@ func CriarUsuario(c *gin.Context) {
 		return
 	}
 
-	user.Senha = services.SHA256Enconder(user.Senha)
-	fmt.Print(user.Senha)	
- 
+	user.Senha = services.SHA256Enconder(user.Senha) 
 	cadastrarUsuario(user, c)
 }
 
@@ -67,7 +64,7 @@ func GetUsuario(c *gin.Context) {
 		return
 	}
 
-	token, err := services.NewJWTService("secret-key", "web-api").GenerateToken(1)
+	token, err := services.NewJWTService("secret-key", "web-api").GenerateToken(senha.IdUser)
 
 	if err != nil {
 		c.JSON(500, gin.H {

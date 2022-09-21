@@ -13,6 +13,7 @@ func ConnectToDB()*sqlx.Tx{
 	)
 	if err!= nil {
     log.Fatal(err)
+		return nil
   }
 
 	tx := db.MustBegin()

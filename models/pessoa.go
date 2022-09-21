@@ -33,3 +33,14 @@ func GetPessoaByNumber(number string) Pessoa {
 	}
 	return pessoa
 }
+
+func UpdateEnderecoPessoa(idPessoa int, idEndereco uint) {
+	db := services.ConnectToDB()
+	_, err := db.Exec("UPDATE Pessoa SET idEndereco = ? WHERE idPessoa = ?", idEndereco, idPessoa)
+	db.Commit()
+
+
+	if err!= nil {
+		return
+  }
+}
