@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"webApi/models"
+	"webApi/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +22,7 @@ type LoginController struct {
 	Senha string `json:"Senha" binding:"required"`
 }
 
-func CadastrarUsuario(usuario UserController, c *gin.Context) {
+func cadastrarUsuario(usuario UserController, c *gin.Context) {
 	var userModel models.User
 
 	userModel.NumeroCelular = usuario.NumeroCelular
@@ -42,7 +44,10 @@ func CriarUsuario(c *gin.Context) {
 		return
 	}
 
-	CadastrarUsuario(user, c)
+	user.Senha = services.SHA256Enconder(user.Senha)
+	fmt.Print(user.Senha)	
+ 
+	cadastrarUsuario(user, c)
 }
 
 func GetUsuario(c *gin.Context) {
@@ -53,7 +58,29 @@ func GetUsuario(c *gin.Context) {
 		return
 	}
 
-	result, err := models.GetUser(login.NumeroCelular, login.Senha)
+	senha, err := models.GetUserByUsername(login.NumeroCelular)
+
+	if senha.Senha != services.SHA256Enconder(login.Senha) {
+		c.JSON(400, gin.H{
+			"ERROR": "Senha inválida",
+		})
+		return
+	}
+
+	token, err := services.NewJWTService("secret-key", "web-api").GenerateToken(1)
+
+	if err != nil {
+		c.JSON(500, gin.H {
+			"ERROR": err.Error(),
+		})
+		return 
+	}
+
+	c.JSON(200, gin.H{
+		"token": token,
+	})
+
+	/* result, err := models.GetUser(login.NumeroCelular, login.Senha)
 
 	if err!= nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -64,6 +91,5 @@ func GetUsuario(c *gin.Context) {
 		return
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{"success": "True", "data": result })
-
+	c.JSON(http.StatusOK, gin.H{"success": "True", "data": result }) */
 }

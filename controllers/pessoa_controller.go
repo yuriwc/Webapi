@@ -27,7 +27,7 @@ func cadastrarPessoa(pessoa PessoaReq, c *gin.Context) {
 
 func CreatePessoa(c *gin.Context) {
 	var pessoa PessoaReq
-	err := c.BindJSON(&pessoa)
+	err := c.ShouldBindJSON(&pessoa)
 	if err != nil{
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
 		return
