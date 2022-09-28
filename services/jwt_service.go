@@ -9,14 +9,14 @@ import (
 
 type jwtService struct {
 	secretKey string
-	issure string
+	issure    string
 }
 
 func NewJWTService(secretKey string, issure string) *jwtService {
 	return &jwtService{
-    secretKey: secretKey,
-    issure: issure,
-  }
+		secretKey: secretKey,
+		issure:    issure,
+	}
 }
 
 type Clain struct {
@@ -29,21 +29,21 @@ func (s *jwtService) GenerateToken(id uint) (string, error) {
 		id,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 2).Unix(),
-			Issuer: s.issure,
-			IssuedAt: time.Now().Unix(),
+			Issuer:    s.issure,
+			IssuedAt:  time.Now().Unix(),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, clain)
 
 	t, err := token.SignedString([]byte(s.secretKey))
-	if err!= nil {
-    return "", err
-  }
+	if err != nil {
+		return "", err
+	}
 
 	return t, nil
 }
 
-func(s *jwtService) ValidateToken (token string) bool {
+func (s *jwtService) ValidateToken(token string) bool {
 	_, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		if _, isValid := t.Method.(*jwt.SigningMethodHMAC); !isValid {
 			return nil, fmt.Errorf("Invalid token: %v", token)

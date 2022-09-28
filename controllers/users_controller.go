@@ -10,15 +10,15 @@ import (
 )
 
 type UserController struct {
-	IdPessoa int `json:"IdPessoa"`
-	IdNivel sql.NullInt16
+	IdPessoa      int `json:"IdPessoa"`
+	IdNivel       sql.NullInt16
 	NumeroCelular string `json:"NumeroCelular" binding:"required"`
-	Senha string `json:"Senha" binding:"required"`
+	Senha         string `json:"Senha" binding:"required"`
 }
 
 type LoginController struct {
 	NumeroCelular string `json:"NumeroCelular" binding:"required"`
-	Senha string `json:"Senha" binding:"required"`
+	Senha         string `json:"Senha" binding:"required"`
 }
 
 func cadastrarUsuario(usuario UserController, c *gin.Context) {
@@ -28,29 +28,29 @@ func cadastrarUsuario(usuario UserController, c *gin.Context) {
 	userModel.Senha = usuario.Senha
 	userModel.IdPessoa = usuario.IdPessoa
 	_, err := models.CreateUser(userModel)
-	if err!= nil {
-    c.JSON(http.StatusOK, gin.H{"success": "False", "message": err.Error() })
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"success": "False", "message": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Usuário criado com sucesso" })
+	c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Usuário criado com sucesso"})
 }
 
 func CriarUsuario(c *gin.Context) {
 	var user UserController
 	err := c.BindJSON(&user)
-	if err!= nil {
+	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
 		return
 	}
 
-	user.Senha = services.SHA256Enconder(user.Senha) 
+	user.Senha = services.SHA256Enconder(user.Senha)
 	cadastrarUsuario(user, c)
 }
 
 func GetUsuario(c *gin.Context) {
 	var login LoginController
 	err := c.BindJSON(&login)
-  if err!= nil {
+	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
 		return
 	}
@@ -67,10 +67,10 @@ func GetUsuario(c *gin.Context) {
 	token, err := services.NewJWTService("secret-key", "web-api").GenerateToken(senha.IdUser)
 
 	if err != nil {
-		c.JSON(500, gin.H {
+		c.JSON(500, gin.H{
 			"ERROR": err.Error(),
 		})
-		return 
+		return
 	}
 
 	c.JSON(200, gin.H{
@@ -82,7 +82,7 @@ func GetUsuario(c *gin.Context) {
 	if err!= nil {
 		if err.Error() == "sql: no rows in result set" {
 			c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Nenhum usuário foi encontrado" })
-			return 
+			return
 		} else {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
 		return

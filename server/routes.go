@@ -23,6 +23,20 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			pessoa.POST("/createPessoa", controllers.CreatePessoa)
 			pessoa.POST("/createAddress", controllers.CriarEndereco)
 		}
+		bicho := main.Group("bicho", middlewares.Auth())
+		{
+			bicho.POST("/createBicho", controllers.CriarBicho)
+		}
+		bilhete := main.Group("bilhete", middlewares.Auth())
+		{
+			bilhete.POST("/create", controllers.CriarBilhete)
+			bilhete.PUT("/update", controllers.UpdateBilhete)
+		}
+		numeroBilhete := main.Group("numeroBilhete", middlewares.Auth())
+		{
+			numeroBilhete.POST("/create", controllers.CriarNumeroBilhete)
+			numeroBilhete.POST("/getAllNumbersInsertedByIDBicho", controllers.GetAllNumbersInsertedByIDBichoFromDB)
+		}
 	}
 
 	return router

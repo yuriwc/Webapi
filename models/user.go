@@ -9,21 +9,21 @@ import (
 )
 
 type User struct {
-	IdPessoa int`db:"idPessoa"`
-	IdNivel int `db:"idNivel"`
+	IdPessoa      int    `db:"idPessoa"`
+	IdNivel       int    `db:"idNivel"`
 	NumeroCelular string `db:"NumeroCelular"`
-	Senha string `db:"Senha"`
+	Senha         string `db:"Senha"`
 }
 
 type Senha struct {
-	Senha string `db:"Senha"`
-	IdUser uint `db:"IdUser"`
+	Senha  string `db:"Senha"`
+	IdUser uint   `db:"IdUser"`
 }
 
-func CreateUser(user User) (sql.Result, error){
+func CreateUser(user User) (sql.Result, error) {
 	tx := services.ConnectToDB()
 
-	if (user.IdPessoa != 0) {
+	if user.IdPessoa != 0 {
 		result, err := tx.NamedExec(
 			"INSERT INTO UserLogin (idNivel, idPessoa, NumeroCelular, Senha) VALUES (:idNivel, :idPessoa, :NumeroCelular, :Senha)", &User{IdNivel: 3, IdPessoa: user.IdPessoa, NumeroCelular: user.NumeroCelular, Senha: user.Senha},
 		)
@@ -38,25 +38,25 @@ func CreateUser(user User) (sql.Result, error){
 	}
 }
 
-func GetUser(login string, password string) (User, error){
+func GetUser(login string, password string) (User, error) {
 	db := services.ConnectToDB()
 	var user User
 
 	err := db.QueryRow("SELECT idNivel, NumeroCelular FROM UserLogin WHERE NumeroCelular = ? AND Senha = ?", login, password).Scan(&user.IdNivel, &user.NumeroCelular)
 
-	if err!= nil {
+	if err != nil {
 		return User{}, err
 	}
 	return user, err
 }
 
-func GetUserByUsername(login string) (Senha, error){
+func GetUserByUsername(login string) (Senha, error) {
 	db := services.ConnectToDB()
 	var senha Senha
 
 	err := db.QueryRow("SELECT Senha, idUser FROM UserLogin WHERE NumeroCelular = ?", login).Scan(&senha.Senha, &senha.IdUser)
 
-	if err!= nil {
+	if err != nil {
 		return Senha{}, err
 	}
 	return senha, err

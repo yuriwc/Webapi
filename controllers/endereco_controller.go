@@ -9,11 +9,11 @@ import (
 )
 
 type EnderecoController struct {
-	Rua string `json:"Rua" binding:"required"`
+	Rua    string `json:"Rua" binding:"required"`
 	Bairro string `json:"Bairro" binding:"required"`
 	Cidade string `json:"Cidade" binding:"required"`
 	Estado string `json:"Estado" binding:"required"`
-	IdUser uint `json:"IdUser" binding:"required"`
+	IdUser uint   `json:"IdUser" binding:"required"`
 }
 
 func cadastrarEndereco(endereco EnderecoController, c *gin.Context) (models.Endereco, error) {
@@ -23,24 +23,24 @@ func cadastrarEndereco(endereco EnderecoController, c *gin.Context) (models.Ende
 	enderecoModel.Cidade = endereco.Cidade
 	enderecoModel.Estado = endereco.Estado
 
-	result, erro :=  models.CriarEndereco(enderecoModel)
+	result, erro := models.CriarEndereco(enderecoModel)
 	return result, erro
 }
 
 func CriarEndereco(c *gin.Context) {
 	var endereco EnderecoController
 	err := c.BindJSON(&endereco)
-	if err!= nil {
+	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
 		return
 	}
 
 	result, erro := cadastrarEndereco(endereco, c)
-	if erro!= nil {
+	if erro != nil {
 		fmt.Print(erro.Error())
 		return
 	}
-	
+
 	models.UpdateEnderecoPessoa(int(endereco.IdUser), result.IdEndereco)
-	
+
 }

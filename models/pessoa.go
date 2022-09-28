@@ -9,26 +9,26 @@ import (
 )
 
 type Pessoa struct {
-	Nome string `db:"Nome"`
-	Telefone string `db:"Telefone"`
-	CPF string `db:"CPF"`
+	Nome       string         `db:"Nome"`
+	Telefone   string         `db:"Telefone"`
+	CPF        string         `db:"CPF"`
 	idEndereco sql.NullString `db:"idEndereco"`
 }
 
-func CreatePessoa(pessoa Pessoa){
+func CreatePessoa(pessoa Pessoa) {
 	tx := services.ConnectToDB()
 
-	tx.NamedExec("INSERT INTO Pessoa (Nome, Telefone, CPF) VALUES (:Nome, :Telefone, :CPF)", &Pessoa{Nome: pessoa.Nome, Telefone: pessoa.Telefone, CPF: pessoa.CPF},)
+	tx.NamedExec("INSERT INTO Pessoa (Nome, Telefone, CPF) VALUES (:Nome, :Telefone, :CPF)", &Pessoa{Nome: pessoa.Nome, Telefone: pessoa.Telefone, CPF: pessoa.CPF})
 	tx.Commit()
 }
 
 func GetPessoaByNumber(number string) Pessoa {
 	db := services.ConnectToDB()
-	pessoa := Pessoa {}
+	pessoa := Pessoa{}
 
 	err := db.QueryRow("SELECT Nome, Telefone, CPF, idEndereco FROM Pessoa WHERE Telefone = ?", number).Scan(&pessoa.Nome, &pessoa.Telefone, &pessoa.CPF, &pessoa.idEndereco)
-		
-	if err!= nil {
+
+	if err != nil {
 		return Pessoa{}
 	}
 	return pessoa
@@ -39,8 +39,7 @@ func UpdateEnderecoPessoa(idPessoa int, idEndereco uint) {
 	_, err := db.Exec("UPDATE Pessoa SET idEndereco = ? WHERE idPessoa = ?", idEndereco, idPessoa)
 	db.Commit()
 
-
-	if err!= nil {
+	if err != nil {
 		return
-  }
+	}
 }

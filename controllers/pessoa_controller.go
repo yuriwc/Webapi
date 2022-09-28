@@ -9,10 +9,10 @@ import (
 )
 
 type PessoaReq struct {
-	Nome string `json:"Nome" binding:"required"`
-	Telefone string `json:"Telefone" binding:"required"`
-	CPF string `json:"CPF" binding:"required"`
-	IdEndereco int `json:"idEndereco"`
+	Nome       string `json:"Nome" binding:"required"`
+	Telefone   string `json:"Telefone" binding:"required"`
+	CPF        string `json:"CPF" binding:"required"`
+	IdEndereco int    `json:"idEndereco"`
 }
 
 func cadastrarPessoa(pessoa PessoaReq, c *gin.Context) {
@@ -21,14 +21,13 @@ func cadastrarPessoa(pessoa PessoaReq, c *gin.Context) {
 	pessoaModel.Telefone = pessoa.Telefone
 	pessoaModel.CPF = pessoa.CPF
 	models.CreatePessoa(pessoaModel)
-	c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Usuário criado com sucesso" })
+	c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Usuário criado com sucesso"})
 }
-
 
 func CreatePessoa(c *gin.Context) {
 	var pessoa PessoaReq
 	err := c.ShouldBindJSON(&pessoa)
-	if err != nil{
+	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
 		return
 	}
@@ -42,9 +41,9 @@ func CreatePessoa(c *gin.Context) {
 
 func GetPessoaByNumberController(c *gin.Context) {
 	result := models.GetPessoaByNumber(c.Param("numero"))
-	if len(result.Nome) >0 {
-		c.JSON(http.StatusOK, gin.H{"success": "True", "data":result })
+	if len(result.Nome) > 0 {
+		c.JSON(http.StatusOK, gin.H{"success": "True", "data": result})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"success": "True", "message":"Não foi encontrado nenhuma pessoa com esse número"})
+		c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Não foi encontrado nenhuma pessoa com esse número"})
 	}
 }
