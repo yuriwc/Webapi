@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"webApi/services"
 
 	_ "github.com/denisenkom/go-mssqldb"
@@ -9,6 +8,7 @@ import (
 )
 
 type User struct {
+	IdUser        int    `db:"idUser"`
 	IdPessoa      int    `db:"idPessoa"`
 	IdNivel       int    `db:"idNivel"`
 	NumeroCelular string `db:"NumeroCelular"`
@@ -20,21 +20,32 @@ type Senha struct {
 	IdUser uint   `db:"IdUser"`
 }
 
-func CreateUser(user User) (sql.Result, error) {
+func CreateUser(user User) (int, error) {
 	tx := services.ConnectToDB()
+	var userNew User
 
 	if user.IdPessoa != 0 {
-		result, err := tx.NamedExec(
-			"INSERT INTO UserLogin (idNivel, idPessoa, NumeroCelular, Senha) VALUES (:idNivel, :idPessoa, :NumeroCelular, :Senha)", &User{IdNivel: 3, IdPessoa: user.IdPessoa, NumeroCelular: user.NumeroCelular, Senha: user.Senha},
-		)
+		error := tx.QueryRow(
+			"INSERT INTO UserLogin (idNivel, idPessoa, NumeroCelular, Senha) OUTPUT INSERTED.idUser VALUES (:idNivel, :idPessoa, :NumeroCelular, :Senha)", &User{IdNivel: 3, IdPessoa: user.IdPessoa, NumeroCelular: user.NumeroCelular, Senha: user.Senha},
+		).Scan(&userNew.IdUser)
+
 		tx.Commit()
-		return result, err
+
+		if error != nil {
+			return 0, error
+		}
+
+		return userNew.IdUser, nil
 	} else {
-		result, err := tx.NamedExec(
-			"INSERT INTO UserLogin (idNivel, NumeroCelular, Senha) VALUES (:idNivel, :NumeroCelular, :Senha)", &User{IdNivel: 3, NumeroCelular: user.NumeroCelular, Senha: user.Senha},
-		)
+		err := tx.QueryRow(
+			"INSERT INTO UserLogin (idNivel, NumeroCelular, Senha) OUTPUT INSERTED.idUser VALUES (?,?,?);", 3, user.NumeroCelular, user.Senha).Scan(&userNew.IdUser)
 		tx.Commit()
-		return result, err
+
+		if err != nil {
+			return 0, err
+		}
+
+		return userNew.IdUser, nil
 	}
 }
 
@@ -60,4 +71,15 @@ func GetUserByUsername(login string) (Senha, error) {
 		return Senha{}, err
 	}
 	return senha, err
+}
+
+func UpdateIdPessoaFromUser(idPessoa int, idUser int) error {
+	db := services.ConnectToDB()
+	_, err := db.Exec("UPDATE UserLogin SET idPessoa = ? WHERE idUser = ?", idPessoa, idUser)
+	db.Commit()
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -21,18 +21,23 @@ type LoginController struct {
 	Senha         string `json:"Senha" binding:"required"`
 }
 
+type UpdateIdPessoaReq struct {
+	IdPessoa int `json:"idPessoa" binding:"required"`
+	IdUser   int `json:"idUser" binding:"required"`
+}
+
 func cadastrarUsuario(usuario UserController, c *gin.Context) {
 	var userModel models.User
 
 	userModel.NumeroCelular = usuario.NumeroCelular
 	userModel.Senha = usuario.Senha
 	userModel.IdPessoa = usuario.IdPessoa
-	_, err := models.CreateUser(userModel)
+	result, err := models.CreateUser(userModel)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{"success": "False", "message": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Usuário criado com sucesso"})
+	c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Usuário criado com sucesso", "idUser": result})
 }
 
 func CriarUsuario(c *gin.Context) {
@@ -89,4 +94,21 @@ func GetUsuario(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{"success": "True", "data": result }) */
+}
+
+func UpdateIdPessoaOnUser(c *gin.Context) {
+	var req UpdateIdPessoaReq
+	err := c.BindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = models.UpdateIdPessoaFromUser(req.IdPessoa, req.IdUser)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": "True", "message": "IdPessoa atualizado com sucesso"})
 }
