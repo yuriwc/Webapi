@@ -3,6 +3,8 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"webApi/models"
 
 	"github.com/gin-gonic/gin"
@@ -33,6 +35,15 @@ func CriarBilhete(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
 		return
+	}
+
+	//Get All numbers unavaillaibles
+	errorNumbers := models.GetAllNumbersInsertedByIdBicho(bilhete.IdBicho)
+	for _, element := range errorNumbers {
+		if element.Numero == bilhete.Numero {
+			c.JSON(http.StatusNotAcceptable, gin.H{"error": "Número já selecionado"})
+			return
+		}
 	}
 
 	_, numeroBilhete, erro := saveBilheteToDB(bilhete, c)
@@ -83,5 +94,28 @@ func UpdateBilhete(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"success": true,
 		"data":    result,
+	})
+}
+
+func GetAllBilhetesFromAPerson(c *gin.Context) {
+	idPessoa, erro := c.Request.URL.Query()["idPessoa"]
+
+	if erro == false {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Favor informar o id da pessoa"})
+		return
+	}
+	novoItem := strings.Join(idPessoa, " ")
+	intVar, err := strconv.Atoi(novoItem)
+
+	bilhetes, err := models.GetAllBilhetesFromAPerson(intVar)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    bilhetes,
 	})
 }
