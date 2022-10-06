@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"webApi/models"
 
@@ -15,13 +16,23 @@ type PessoaReq struct {
 	IdEndereco int    `json:"idEndereco"`
 }
 
+type GanhadorReq struct {
+	Concurso int `json:"Concurso" binding:"required"`
+	Numero   int `json:"Numero" binding:"required"`
+}
+
 func cadastrarPessoa(pessoa PessoaReq, c *gin.Context) {
 	var pessoaModel models.Pessoa
 	pessoaModel.Nome = pessoa.Nome
 	pessoaModel.Telefone = pessoa.Telefone
 	pessoaModel.CPF = pessoa.CPF
-	models.CreatePessoa(pessoaModel)
-	c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Usuário criado com sucesso"})
+	result, err := models.CreatePessoa(pessoaModel)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Usuário criado com sucesso", "idPessoa": result})
 }
 
 func CreatePessoa(c *gin.Context) {
@@ -45,5 +56,26 @@ func GetPessoaByNumberController(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"success": "True", "data": result})
 	} else {
 		c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Não foi encontrado nenhuma pessoa com esse número"})
+	}
+}
+
+func GetGanhadorFromDB(c *gin.Context) {
+	var ganhador GanhadorReq
+	errorJSON := c.BindJSON(&ganhador)
+	if errorJSON != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": errorJSON.Error()})
+		return
+	}
+
+	result, err := models.GetGanhandor(ganhador.Numero, ganhador.Concurso)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(result.Nome) > 0 {
+		c.JSON(http.StatusOK, gin.H{"success": "True", "data": result})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"success": "True", "message": "Não foi encontrado nenhum ganhador com esse número"})
 	}
 }
