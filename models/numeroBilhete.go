@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"webApi/services"
 )
 
@@ -29,6 +28,5 @@ func GetAllNumbersInsertedByIdBicho(idBicho uint) []NumeroBilhete {
 	var numeroBilhete []NumeroBilhete
 	db.Select(&numeroBilhete, "SELECT pessoaBilhete.numero FROM pessoaBilhete JOIN Bilhete ON pessoaBilhete.idBilhete = Bilhete.idBilhete JOIN Bicho ON Bicho.idBicho = Bilhete.idBicho WHERE Bicho.idBicho = ?", idBicho)
 
-	fmt.Println(numeroBilhete)
 	return numeroBilhete
 }
