@@ -48,3 +48,14 @@ func CriarBicho(c *gin.Context) {
 		"data":    bicho,
 	})
 }
+
+func GetAllBichos(c *gin.Context) {
+	bichos, erro := models.GetAllBichos()
+	if erro != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": erro.Error()})
+	}
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    bichos,
+	})
+}
